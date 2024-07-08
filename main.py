@@ -4,6 +4,8 @@ from macker import add_or_update_manga, initialize_sheet
 from scrape import scrape_manga_data
 from notify import notify_new_chapter  # Import the notification function
 
+print("Script started at", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
 
 def check_for_updates():
     print("Checking for new chapters...")
@@ -47,17 +49,18 @@ def check_for_updates():
             print("Encountered an empty URL, skipping.")
 
 
-def add_manga(url):
-    print(f"Adding new manga URL: {url}")
-    manga_details = scrape_manga_data(url)
-    if (
-        manga_details[1] != "Chapter link not found"
-        and manga_details[1] != "Failed to fetch"
-    ):
-        add_or_update_manga(url, manga_details, "noahkornberg@gmail.com")
-        print(f"New manga added for {url}")
-    else:
-        print("Failed to add new manga.")
+def add_manga(urls):
+    for url in urls:
+        print(f"Adding new manga URL: {url}")
+        manga_details = scrape_manga_data(url)
+        if (
+            manga_details[1] != "Chapter link not found"
+            and manga_details[1] != "Failed to fetch"
+        ):
+            add_or_update_manga(url, manga_details, "noahkornberg@gmail.com")
+            print(f"New manga added for {url}")
+        else:
+            print("Failed to add new manga for URL:", url)
 
 
 def main():
@@ -65,7 +68,9 @@ def main():
     parser.add_argument(
         "--update", help="Check for updates on manga chapters", action="store_true"
     )
-    parser.add_argument("--add", help="Add a new manga URL", type=str)
+    parser.add_argument(
+        "--add", help="Add new manga URLs separated by commas", type=str
+    )
 
     args = parser.parse_args()
 
@@ -73,10 +78,11 @@ def main():
         print("Update triggered by command.")
         check_for_updates()
     elif args.add:
-        add_manga(args.add)
+        urls = args.add.split(",")  # Split the input string into a list of URLs
+        add_manga(urls)
     else:
         print(
-            "No command given. Use --update to check for updates or --add [url] to add a new manga."
+            "No command given. Use --update to check for updates or --add 'url1,url2' to add new manga."
         )
 
 
