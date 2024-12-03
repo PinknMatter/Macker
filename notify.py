@@ -1,3 +1,4 @@
+import os
 import base64
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -5,10 +6,12 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from google.auth.transport.requests import Request
 import pickle
-import os.path
+import config
+
+# Dynamically load Gmail credentials
+SHEET_CREDENTIALS = os.getenv("CREDENTIALS_GMAIL", config.SHEET_CREDENTIALS)
 
 
-# Email sending function using Gmail API
 def send_email(subject, message, to_email):
     service = get_gmail_service()
     msg = MIMEMultipart()
@@ -31,23 +34,17 @@ def get_gmail_service():
     SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
     creds = None
 
-    # The file token.pickle stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first time.
     if os.path.exists("token.pickle"):
         with open("token.pickle", "rb") as token:
             creds = pickle.load(token)
 
-    # If there are no (valid) credentials available, or they need refreshment, handle it.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                "credentials2.json", SCOPES
-            )
-            creds = flow.run_local_server(port=8080)  # Dynamically handle the port
+            flow = InstalledAppFlow.from_client_secrets_file(SHEET_CREDENTIALS, SCOPES)
+            creds = flow.run_local_server(port=8080)
 
-        # Save the credentials for the next run
         with open("token.pickle", "wb") as token:
             pickle.dump(creds, token)
 

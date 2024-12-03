@@ -1,6 +1,11 @@
+import os
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import config
+
+# Dynamically load configuration from environment variables or fallback to config.py
+SERVICE_KEY = os.getenv("SERVICE_KEY", config.SERVICE_KEY)
+SPREAD_SHEET = os.getenv("SPREAD_SHEET", config.SPREAD_SHEET)
 
 
 def initialize_sheet():
@@ -8,13 +13,9 @@ def initialize_sheet():
         "https://www.googleapis.com/auth/spreadsheets",
         "https://www.googleapis.com/auth/drive",
     ]
-    creds = ServiceAccountCredentials.from_json_keyfile_name(
-        config.CREDENTIALS_SHEET, scope
-    )
+    creds = ServiceAccountCredentials.from_json_keyfile_name(SERVICE_KEY, scope)
     client = gspread.authorize(creds)
-    return client.open(
-        config.SPREAD_SHEET
-    ).sheet1  # Ensure the spreadsheet exists and is shared with the service account
+    return client.open(SPREAD_SHEET).sheet1
 
 
 def add_or_update_manga(url, manga_details, to_email):
@@ -39,6 +40,3 @@ def add_or_update_manga(url, manga_details, to_email):
         print(f"API Error: {e}")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
-
-
-# Make sure to handle exceptions correctly and ensure that the service account has the correct permissions

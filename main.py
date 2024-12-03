@@ -1,9 +1,13 @@
+import os
 import argparse
 from datetime import datetime
 from macker import add_or_update_manga, initialize_sheet
 from scrape import scrape_manga_data
-from notify import notify_new_chapter  # Import the notification function
+from notify import notify_new_chapter
 import config
+
+# Dynamically load configuration from environment variables or fallback to config.py
+NOTIFICATION_EMAIL = os.getenv("NOTIFICATION_EMAIL", config.NOTIFICATION_EMAIL)
 
 print("Script started at", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
@@ -28,20 +32,13 @@ def check_for_updates():
                 manga_details[1] != "Chapter link not found"
                 and manga_details[1] != "Failed to fetch"
             ):
-                current_chapter = entry.get(
-                    "Chapter"
-                )  # Retrieve the current chapter from the sheet
-                if (
-                    current_chapter != manga_details[2]
-                ):  # Compare the scraped chapter text with the stored chapter
-                    add_or_update_manga(url, manga_details, "noahkornberg@gmail.com")
+                current_chapter = entry.get("Chapter")
+                if current_chapter != manga_details[2]:
+                    add_or_update_manga(url, manga_details, NOTIFICATION_EMAIL)
                     print(f"New chapter found and updated for {url}")
                     notify_new_chapter(
-                        manga_details[1],
-                        manga_details[0],
-                        config.NOTIFICATION_EMAIL,
+                        manga_details[1], manga_details[0], NOTIFICATION_EMAIL
                     )
-
                 else:
                     print("No new chapter found.")
             else:
@@ -58,7 +55,7 @@ def add_manga(urls):
             manga_details[1] != "Chapter link not found"
             and manga_details[1] != "Failed to fetch"
         ):
-            add_or_update_manga(url, manga_details, "noahkornberg@gmail.com")
+            add_or_update_manga(url, manga_details, NOTIFICATION_EMAIL)
             print(f"New manga added for {url}")
         else:
             print("Failed to add new manga for URL:", url)
