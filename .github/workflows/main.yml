@@ -6,7 +6,7 @@ on:
     - cron: "0 15 * * *"
     # Run at 10:00 PM EST (03:00 UTC)
     - cron: "0 3 * * *"
-
+  workflow_dispatch:  # Enables manual triggering
 jobs:
   run-script:
     runs-on: ubuntu-latest
