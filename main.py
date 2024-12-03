@@ -3,6 +3,7 @@ from datetime import datetime
 from macker import add_or_update_manga, initialize_sheet
 from scrape import scrape_manga_data
 from notify import notify_new_chapter  # Import the notification function
+import config
 
 print("Script started at", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
@@ -38,7 +39,7 @@ def check_for_updates():
                     notify_new_chapter(
                         manga_details[1],
                         manga_details[0],
-                        "noahkornberg@gmail.com",
+                        config.NOTIFICATION_EMAIL,
                     )
 
                 else:
@@ -78,7 +79,7 @@ def main():
         print("Update triggered by command.")
         check_for_updates()
     elif args.add:
-        urls = args.add.split(",")  # Split the input string into a list of URLs
+        urls = args.add.split(",")
         add_manga(urls)
     else:
         print(

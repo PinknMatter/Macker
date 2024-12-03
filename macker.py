@@ -1,5 +1,6 @@
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+import config
 
 
 def initialize_sheet():
@@ -8,11 +9,11 @@ def initialize_sheet():
         "https://www.googleapis.com/auth/drive",
     ]
     creds = ServiceAccountCredentials.from_json_keyfile_name(
-        "macker-428721-78ccb1f3325e.json", scope
+        config.CREDENTIALS_SHEET, scope
     )
     client = gspread.authorize(creds)
     return client.open(
-        "Macker"
+        config.SPREAD_SHEET
     ).sheet1  # Ensure the spreadsheet exists and is shared with the service account
 
 
