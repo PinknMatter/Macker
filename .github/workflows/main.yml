@@ -2,11 +2,10 @@ name: MACKER Cron Job
 
 on:
   schedule:
-    # Run at 10:00 AM EST (15:00 UTC)
-    - cron: "0 15 * * *"
-    # Run at 10:00 PM EST (03:00 UTC)
-    - cron: "0 3 * * *"
-  workflow_dispatch:  # Enables manual triggering
+    - cron: "0 15 * * *"  # 10:00 AM EST
+    - cron: "0 3 * * *"   # 10:00 PM EST
+  workflow_dispatch:      # Enable manual triggering
+
 jobs:
   run-script:
     runs-on: ubuntu-latest
@@ -18,7 +17,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: 3.10
+        python-version: 3.10  # Use a supported version like 3.10 or 3.9
 
     - name: Install dependencies
       run: |
