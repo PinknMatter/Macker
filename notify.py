@@ -6,6 +6,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from google.auth.transport.requests import Request
 import pickle
+import tempfile
 import config
 
 # Dynamically load Gmail credentials
@@ -42,14 +43,31 @@ def get_gmail_service():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file(SHEET_CREDENTIALS, SCOPES)
-            creds = flow.run_local_server(port=8080)
+            # Handle environment variable-based credentials
+            if SHEET_CREDENTIALS.startswith("{"):
+                # Assume SHEET_CREDENTIALS contains JSON content directly
+                with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_file:
+                    temp_file.write(SHEET_CREDENTIALS)
+                    temp_file_path = temp_file.name
+            else:
+                # Assume SHEET_CREDENTIALS is a file path
+                temp_file_path = SHEET_CREDENTIALS
 
+            try:
+                flow = InstalledAppFlow.from_client_secrets_file(temp_file_path, SCOPES)
+                creds = flow.run_local_server(port=8080)
+            finally:
+                # Clean up temporary file if created
+                if temp_file_path != SHEET_CREDENTIALS and os.path.exists(
+                    temp_file_path
+                ):
+                    os.unlink(temp_file_path)
+
+        # Save the credentials for future use
         with open("token.pickle", "wb") as token:
             pickle.dump(creds, token)
 
-    service = build("gmail", "v1", credentials=creds)
-    return service
+    return build("gmail", "v1", credentials=creds)
 
 
 def notify_new_chapter(chapter_title, chapter_url, to_email):

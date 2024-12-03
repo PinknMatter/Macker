@@ -1,6 +1,7 @@
 import os
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+import tempfile
 import config
 
 # Dynamically load configuration from environment variables or fallback to config.py
@@ -13,7 +14,19 @@ def initialize_sheet():
         "https://www.googleapis.com/auth/spreadsheets",
         "https://www.googleapis.com/auth/drive",
     ]
-    creds = ServiceAccountCredentials.from_json_keyfile_name(SERVICE_KEY, scope)
+
+    # Handle credentials as a file path or environment variable content
+    if os.path.isfile(SERVICE_KEY):
+        # Local file path
+        creds = ServiceAccountCredentials.from_json_keyfile_name(SERVICE_KEY, scope)
+    else:
+        # Assume SERVICE_KEY contains JSON content
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_file:
+            temp_file.write(SERVICE_KEY)
+            temp_file_path = temp_file.name
+        creds = ServiceAccountCredentials.from_json_keyfile_name(temp_file_path, scope)
+        os.unlink(temp_file_path)
+
     client = gspread.authorize(creds)
     return client.open(SPREAD_SHEET).sheet1
 
