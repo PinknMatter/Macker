@@ -55,14 +55,14 @@ Place the credentials gmail json file in the root of your project.
 
 NOTIFICATION_EMAIL = "your-email@example.com"
 
-CREDENTIALS_SHEET = "Sheets credentials"
+CREDENTIALS_SHEET = "Service key"
 
-CREDENTIALS_GMAIL = "gmail credentials"
+CREDENTIALS_GMAIL = "credentials / AUTH Credentials"
 
 SPREAD_SHEET = "Sheets name"
 
 
-The config.py file contains all the necessary settings and paths for MACKER to function properly. Below is an explanation of each configuration variable:
+All credentials file should be stored in the "Creds" folder
 
 ## 1. NOTIFICATION_EMAIL
 Description: The email address where notifications about new manga chapters will be sent.
@@ -71,16 +71,15 @@ Example:
 NOTIFICATION_EMAIL = "noahkornberg@gmail.com"
 
 ## 2. CREDENTIALS_SHEET
-Description: The filename of the credentials JSON file required to access the Google Sheets API. This file should be downloaded from the Google Cloud Console when enabling the Google Sheets API.
-Example:
+Description: The filename of the Service account key/credentials
 
-CREDENTIALS_SHEET = "macker-428721-78ccb1f3325e.json"
+CREDENTIALS_SHEET = "./Creds/macker-428721-78ccb1f3325e.json"
 
 ## 3. CREDENTIALS_GMAIL
 Description: The filename of the Gmail credentials JSON file required for sending email notifications. This file should be set up when configuring Gmail API access.
 Example:
 
-CREDENTIALS_GMAIL = "credentials2.json"
+CREDENTIALS_GMAIL = "./Creds/credentials2.json"
 
 ## 4. SPREAD_SHEET
 Description: The name of the Google Spreadsheet used to store manga updates.
