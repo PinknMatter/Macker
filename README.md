@@ -137,6 +137,10 @@ Receive an email notification for new chapters.
 
 --- 
 
+## Runy.bat
+
+This is set up to run the bat file to automatically check for updates you can add this to your task scheduler etc..
+
 License
 This project is licensed under the MIT License. See the LICENSE file for details.
 
