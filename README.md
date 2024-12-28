@@ -7,14 +7,36 @@ MACKER is an automated tool that helps manga enthusiasts stay up-to-date with th
 - **Automated Updates**: Scrapes manga data from manganato.com.
 - **Email Notifications**: Sends an email when new chapters are available.
 - **Google Sheets Integration**: Saves and tracks manga details, including URLs and chapter numbers.
+- **Smart Chapter Parsing**: Intelligently extracts chapter numbers from complex titles (e.g., "Chapter 150: Season 3 End").
+- **Beautiful Console Output**: Color-coded and formatted console output for better readability.
 - **Easy-to-Use Commands**:
   - Check for updates: `python main.py --update`
   - Add a new manga to track: `python main.py --add URL`
 
+## Console Output Features
+
+The script now provides beautifully formatted console output with:
+- **Purple Headers**: Major section titles
+- **Green Checkmarks**: Successful operations
+- **Red Crosses**: Error messages
+- **Yellow Warnings**: Important notices
+- **Blue Manga Titles**: Manga names
+- **Cyan Info**: General status updates
+
+Example output:
+```
+=== Macker Script Started at 2024-12-27 23:00:00 ===
+=== Checking for New Chapters ===
+
+ℹ Checking One Piece
+URL: https://manganato.com/manga-aa951409
+✓ Updated to latest chapter Chapter 1075
+
+ℹ Checking Black Clover
+! Could not extract chapter number from: Special Chapter
+```
+
 ---
-
-
-
 
 ## Prerequisites
 
@@ -31,11 +53,7 @@ Before using MACKER, ensure the following are installed and configured:
 
 ---
 
-
-
-
-# Installation
-
+## Installation
 
 ## Set up the Google Sheets API:
 
@@ -45,13 +63,9 @@ Place the credentials for the sheets json  file in the root of your project.
 
 Place the credentials gmail json file in the root of your project.
 
---- 
+---
 
-
-
-
-
-# Configure your email and file paths in config.py:
+## Configure your email and file paths in config.py:
 
 NOTIFICATION_EMAIL = "your-email@example.com"
 
@@ -60,7 +74,6 @@ CREDENTIALS_SHEET = "Service key"
 CREDENTIALS_GMAIL = "credentials / AUTH Credentials"
 
 SPREAD_SHEET = "Sheets name"
-
 
 All credentials file should be stored in the "Creds" folder
 
@@ -118,13 +131,9 @@ If a new chapter is available, it sends an email notification to the configured 
 
 
 
-
-
-
 ---
 
 ## Example
-
 
 python main.py --add https://manganato.com/manga-xyz789
 Check for updates:
@@ -134,7 +143,7 @@ python main.py --update
 Receive an email notification for new chapters.
 
 
---- 
+---
 
 ## Runy.bat
 

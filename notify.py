@@ -8,6 +8,7 @@ from google.auth.transport.requests import Request
 import pickle
 import tempfile
 import config
+from utils import format_success, format_error
 
 # Dynamically load Gmail credentials
 SHEET_CREDENTIALS = os.getenv("CREDENTIALS_GMAIL", config.SHEET_CREDENTIALS)
@@ -26,9 +27,9 @@ def send_email(subject, message, to_email):
     body = {"raw": raw}
     try:
         message = service.users().messages().send(userId="me", body=body).execute()
-        print("Email sent! Message Id: %s" % message["id"])
+        print(format_success(f"Email sent! Message Id: {message['id']}"))
     except Exception as e:
-        print("An error occurred: %s" % e)
+        print(format_error(f"An error occurred while sending email: {e}"))
 
 
 def get_gmail_service():
@@ -73,4 +74,18 @@ def get_gmail_service():
 def notify_new_chapter(chapter_title, chapter_url, to_email):
     subject = f"New Chapter Alert: {chapter_title}"
     message = f"A new chapter is available now!\n\nTitle: {chapter_title}\nRead here: {chapter_url}"
+    send_email(subject, message, to_email)
+
+
+def notify_new_chapters(manga_title, chapters, to_email):
+    """
+    Send a single email notification for multiple chapters of the same manga.
+    chapters should be a list of tuples containing (chapter_url, manga_title, chapter_text, chapter_number)
+    """
+    subject = f"New Chapters Alert: {manga_title}"
+    message = f"Multiple new chapters are available for {manga_title}!\n\n"
+    
+    for chapter_url, _, chapter_text, _ in chapters:
+        message += f"Chapter {chapter_text}: {chapter_url}\n"
+    
     send_email(subject, message, to_email)

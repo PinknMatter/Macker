@@ -1,6 +1,6 @@
 import os
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials
 import tempfile
 import config
 
@@ -18,13 +18,13 @@ def initialize_sheet():
     # Handle credentials as a file path or environment variable content
     if os.path.isfile(SERVICE_KEY):
         # Local file path
-        creds = ServiceAccountCredentials.from_json_keyfile_name(SERVICE_KEY, scope)
+        creds = Credentials.from_service_account_file(SERVICE_KEY, scopes=scope)
     else:
         # Assume SERVICE_KEY contains JSON content
         with tempfile.NamedTemporaryFile(mode="w", delete=False) as temp_file:
             temp_file.write(SERVICE_KEY)
             temp_file_path = temp_file.name
-        creds = ServiceAccountCredentials.from_json_keyfile_name(temp_file_path, scope)
+        creds = Credentials.from_service_account_file(temp_file_path, scopes=scope)
         os.unlink(temp_file_path)
 
     client = gspread.authorize(creds)
