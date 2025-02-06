@@ -37,7 +37,6 @@ jobs:
     - name: Run MACKER
       env:
         SERVICE_KEY: ${{ secrets.SERVICE_KEY }}
-        CREDENTIALS_GMAIL: ${{ secrets.CREDENTIALS_GMAIL }}
         SPREAD_SHEET: "Macker"
         NOTIFICATION_EMAIL: "noahkornberg@gmail.com"
       run: |
