@@ -22,7 +22,7 @@ print(format_header(f"Macker Script Started at {datetime.now().strftime('%Y-%m-%
 
 def extract_chapter_number(chapter_text):
     if not chapter_text:
-        return None
+        return 0.0  # Return 0.0 instead of None for consistency
     try:
         if "Chapter" in chapter_text:
             chapter_parts = chapter_text.split("Chapter ")
@@ -39,7 +39,7 @@ def extract_chapter_number(chapter_text):
             return float(chapter_text)
     except (ValueError, TypeError):
         pass
-    return None
+    return 0.0  # Return 0.0 instead of None for consistency
 
 
 def check_for_updates():
@@ -53,43 +53,50 @@ def check_for_updates():
 
     for entry in manga_entries:
         url = entry.get("URL")
-        if url:  # Ensure the URL is not empty
-            manga_title = entry.get("Title", "Unknown Manga")
-            print(f"\n{format_info(f'Checking {format_manga_title(manga_title)}')}")
-            print(f"URL: {url}")
-            
-            chapters = scrape_manga_data(url)
-            if chapters and chapters[0][1] not in ["Chapter link not found", "Failed to fetch"]:
-                current_chapter = entry.get("Chapter")
-                current_chapter_num = extract_chapter_number(current_chapter)
-                if current_chapter_num is None:
-                    print(format_warning(f"Could not extract chapter number from: {current_chapter}"))
-                    continue
-
-                # Filter chapters newer than the current one and sort them
-                new_chapters = [ch for ch in chapters if extract_chapter_number(ch[2]) > current_chapter_num]
-                
-                if new_chapters:
-                    try:
-                        # Send a single notification for all new chapters
-                        manga_title = new_chapters[0][1]  # Get title from first chapter
-                        notify_new_chapters(manga_title, new_chapters, NOTIFICATION_EMAIL)
-                        print(format_success(f"Notification sent for {len(new_chapters)} new chapter(s)"))
-                        
-                        # After successfully sending notification, update to the latest chapter
-                        latest_chapter = new_chapters[-1]  # Get the newest chapter
-                        # Create a tuple with only the required fields (url, title, chapter_text)
-                        manga_details = (latest_chapter[0], latest_chapter[1], latest_chapter[2])
-                        add_or_update_manga(url, manga_details, NOTIFICATION_EMAIL)
-                        print(format_success(f"Updated to latest chapter {latest_chapter[2]}"))
-                    except Exception as e:
-                        print(format_error(f"Failed to process updates: {e}"))
-                else:
-                    print(format_info("No new chapters found"))
-            else:
-                print(format_error(f"Failed to fetch manga data"))
-        else:
+        if not url:  # Skip empty URLs
             print(format_warning("Encountered an empty URL, skipping"))
+            continue
+
+        manga_title = entry.get("Title", "Unknown Manga")
+        print(f"\n{format_info(f'Checking {format_manga_title(manga_title)}')}")
+        print(f"URL: {url}")
+        
+        try:
+            chapters = scrape_manga_data(url)
+            if not chapters:
+                print(format_error("No chapters returned"))
+                continue
+
+            # Check if the first chapter indicates an error
+            if chapters[0][2] in ["Failed to fetch", "Chapter links not found", "No chapters found", "Error processing page"]:
+                print(format_error(f"Error: {chapters[0][2]}"))
+                continue
+
+            current_chapter = entry.get("Chapter", "")
+            current_chapter_num = extract_chapter_number(current_chapter)
+            
+            # Filter chapters newer than the current one and sort them
+            new_chapters = [ch for ch in chapters if ch[3] > current_chapter_num]
+            
+            if new_chapters:
+                try:
+                    # Send a single notification for all new chapters
+                    manga_title = new_chapters[0][1]  # Get title from first chapter
+                    notify_new_chapters(manga_title, new_chapters, NOTIFICATION_EMAIL)
+                    print(format_success(f"Notification sent for {len(new_chapters)} new chapter(s)"))
+                    
+                    # After successfully sending notification, update to the latest chapter
+                    latest_chapter = new_chapters[0]  # Get the newest chapter since they're already sorted
+                    # Create a tuple with only the required fields (url, title, chapter_text)
+                    manga_details = (latest_chapter[0], latest_chapter[1], latest_chapter[2])
+                    add_or_update_manga(url, manga_details, NOTIFICATION_EMAIL)
+                    print(format_success(f"Updated to latest chapter {latest_chapter[2]}"))
+                except Exception as e:
+                    print(format_error(f"Failed to process updates: {e}"))
+            else:
+                print(format_info("No new chapters found"))
+        except Exception as e:
+            print(format_error(f"Error processing manga {manga_title}: {str(e)}"))
 
 
 def add_manga(urls):
